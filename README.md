@@ -1,7 +1,7 @@
 
 # Chat App Backend
 
-A web application that serves as a load-balanced backend for a hypothetical Chat Application
+A web application that serves as a load-balanced backend for a Chat Application, orchestrated through Docker Compose.
 
 # Tech Stack
 
