@@ -1,0 +1,53 @@
+version: '2'
+services:
+  mysql:
+    container_name: mysql
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'pass'
+      MYSQL_ROOT_PASSWORD: 'password'
+    networks:
+      - db
+    
+  redis:
+    image: 'bitnami/redis:latest'
+    environment:
+      REDIS_PASSWORD: 'PASSWORD'
+    restart: always
+    networks: 
+      - redis
+  
+  chat:
+    build:
+      context: ./
+      dockerfile: ./go-docker/Dockerfile
+    ports:
+      - "8008"
+    networks:
+      - loadbalancing
+      - db
+      - redis
+    depends_on:
+      - redis
+      - mysql
+    deploy:
+      replicas: 2
+    restart: always
+
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    networks:
+      - loadbalancing
+    depends_on:
+      - chat
+    
+networks:
+  loadbalancing:
+  db:
+  redis:
