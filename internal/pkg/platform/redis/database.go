@@ -14,7 +14,7 @@ type Redis struct {
 	rdb *redis.Client
 }
 
-func NewRedis() kvadapter.RepoAdapter {
+func NewRedis() (kvadapter.RepoAdapter, error) {
 	cfg := conf.GetConfig()
 	client := redis.NewClient(&redis.Options{
 		Addr:     cfg.Redis.Host,
@@ -22,12 +22,12 @@ func NewRedis() kvadapter.RepoAdapter {
 		DB:       0,
 	})
 	if err := client.Ping(context.Background()).Err(); err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	return Redis{
 		rdb: client,
-	}
+	}, nil
 }
 
 func (r Redis) Delete(key string) (err error) {

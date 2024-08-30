@@ -2,7 +2,7 @@ package chatservice
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"websocket_client/internal/common"
 	"websocket_client/internal/pkg/core/adapter/chatadapter"
 
@@ -45,6 +45,7 @@ func (c ChatService) WebsocketHandler(req chatadapter.WebsocketHandlerReq) error
 
 	//Process incoming websocket messages
 	for {
+		flowID := common.GenerateUUID()
 		websocketRequest := WebsocketReq{}
 		mt, msg, err := conn.ReadMessage()
 		if err != nil || mt == websocket.CloseMessage {
@@ -52,9 +53,10 @@ func (c ChatService) WebsocketHandler(req chatadapter.WebsocketHandlerReq) error
 		}
 		err = json.Unmarshal(msg, &websocketRequest)
 		if err != nil {
-			log.Printf(logFailUnmarshal, websocketRequest)
+			c.Logger.NewError(fmt.Sprintf(logPrefix, "WebsocketHandler", fmt.Sprintf(logFailUnmarshal, websocketRequest), flowID))
+			continue
 		}
-		log.Printf("req type: %s", websocketRequest.ReqType)
+		c.Logger.NewInfo(fmt.Sprintf(logPrefix, "WebsocketHandler", fmt.Sprintf(logIncomingMessage, websocketRequest), flowID))
 		switch websocketRequest.ReqType {
 		case incomingMessageTypeMessage:
 			c.sendMessageHandler(req.UserID, websocketRequest.Data)
@@ -65,7 +67,7 @@ func (c ChatService) WebsocketHandler(req chatadapter.WebsocketHandlerReq) error
 		case incomingMessageTypeRemoveFriend:
 			c.removeFriend(req.UserID, websocketRequest.Data)
 		default:
-			log.Print(logUnrecognizedMessage)
+			c.Logger.NewError(fmt.Sprintf(logPrefix, "WebsocketHandler", fmt.Sprintf(logUnrecognizedMessage, websocketRequest.ReqType), flowID))
 		}
 	}
 

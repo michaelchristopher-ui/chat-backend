@@ -8,5 +8,6 @@ redis:
   host: "redis:6379"
   password: "PASSWORD"
   user_timeout: 60
+
 database:
   dsn: "user:pass@tcp(mysql:3306)/db?charset=utf8mb4&parseTime=True&loc=Local"

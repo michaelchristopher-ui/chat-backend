@@ -3,9 +3,7 @@ package chatservice
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"time"
-	"websocket_client/internal/pkg/core/adapter/chatadapter"
 	"websocket_client/internal/pkg/platform/mysql/models"
 
 	"gorm.io/gorm"
@@ -20,10 +18,12 @@ type SendMessageRes struct {
 func (c ChatService) sendMessageHandler(userID string, data interface{}) {
 	sendMessagesRes := SendMessageRes{}
 	defer c.sendWebsocket(userID, sendMessagesRes)
-	publishMessageReq := chatadapter.PublishMessageReq{}
+	publishMessageReq := PublishMessageReq{}
 	jsonString, _ := json.Marshal(data)
-	if json.Unmarshal(jsonString, &publishMessageReq) != nil {
-		log.Printf(logFailUnmarshal, sendMessagesRes)
+	sendMessagesRes.Error = json.Unmarshal(jsonString, &publishMessageReq).Error()
+	if sendMessagesRes.Error != "" {
+		c.Logger.NewInfo(fmt.Sprintf(logFailUnmarshal, publishMessageReq))
+		return
 	}
 
 	currTimeSecond := time.Now().Second()
@@ -40,13 +40,13 @@ func (c ChatService) sendMessageHandler(userID string, data interface{}) {
 			Timestamp:  publishMessageReq.Timestamp,
 		}).Error
 		if err != nil {
-			log.Printf(logSaveMessage, err.Error())
+			c.Logger.NewError(fmt.Sprintf(logPrefix, "sendMessageHandler", fmt.Sprintf(logErrSaveMessage, err.Error()), "FlowIDTODO"))
 			return err
 		}
 
-		err = c.PublishMessage(publishMessageReq)
+		err = c.publishMessage(publishMessageReq)
 		if err != nil {
-			log.Printf(logMessageCannotPublish, err.Error(), publishMessageReq)
+			c.Logger.NewError(fmt.Sprintf(logPrefix, "sendMessageHandler", fmt.Sprintf(logErrMessageCannotPublish, err.Error(), publishMessageReq), "FlowIDTODO"))
 			return err
 		}
 		return nil

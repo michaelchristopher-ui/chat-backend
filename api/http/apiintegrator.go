@@ -3,6 +3,7 @@ package http
 import (
 	"websocket_client/internal/pkg/core/adapter/accountadapter"
 	"websocket_client/internal/pkg/core/adapter/chatadapter"
+	"websocket_client/internal/pkg/core/adapter/loggeradapter"
 
 	"github.com/labstack/echo"
 )
@@ -28,6 +29,7 @@ func NewAPIIntegrator(req NewAPIIntegratorReq) *APIIntegrator {
 type NewAPIIntegratorReq struct {
 	ChatService    chatadapter.Adapter
 	AccountService accountadapter.Adapter
+	Logger         loggeradapter.Adapter
 }
 
 // API is a method that initializes the integrator and sets up all the APIs for the application
@@ -42,10 +44,12 @@ func API(req APIReq) {
 	chat.GET("/ws", integrator.Websocket)
 	chat.POST("/receive", integrator.ReceiveMessage)
 	chat.POST("/register", integrator.RegisterAccount)
+	chat.GET("/health_check", integrator.HealthCheck)
 }
 
 type APIReq struct {
 	E              *echo.Echo
 	ChatService    chatadapter.Adapter
 	AccountService accountadapter.Adapter
+	Logger         loggeradapter.Adapter
 }

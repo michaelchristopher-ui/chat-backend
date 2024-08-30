@@ -1,9 +1,11 @@
 package chatservice
 
 import (
+	"websocket_client/internal/common"
 	"websocket_client/internal/pkg/core/adapter/chatadapter"
 	"websocket_client/internal/pkg/core/adapter/databaseadapter"
 	"websocket_client/internal/pkg/core/adapter/kvadapter"
+	"websocket_client/internal/pkg/core/adapter/loggeradapter"
 
 	"github.com/gorilla/websocket"
 )
@@ -13,20 +15,26 @@ type ChatService struct {
 	DB              databaseadapter.RepoAdapter
 	UserConnections map[string]*websocket.Conn
 	Redis           kvadapter.RepoAdapter
+	Logger          loggeradapter.Adapter
 }
 
 // NewChatServiceReq defines the request parameter struct for NewChatService
 type NewChatServiceReq struct {
-	DB    databaseadapter.RepoAdapter
-	Redis kvadapter.RepoAdapter
+	DB     databaseadapter.RepoAdapter
+	Redis  kvadapter.RepoAdapter
+	Logger loggeradapter.Adapter
 }
 
 // NewChatService is a constructor function for ChatService, which conforms to chatadapter.Adapter
 func NewChatService(req NewChatServiceReq) chatadapter.Adapter {
+	if err := common.CheckNilFields(req); err != nil {
+		panic(err.Error())
+	}
 	return ChatService{
 		DB:              req.DB,
 		UserConnections: map[string]*websocket.Conn{},
 		Redis:           req.Redis,
+		Logger:          req.Logger,
 	}
 }
 

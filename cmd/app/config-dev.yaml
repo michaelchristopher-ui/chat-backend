@@ -1,0 +1,13 @@
+server:
+  app_name: chat_websocket_server
+  read_timeout: 0
+  write_timeout: 0
+  port: "8008"
+
+redis:
+  host: "localhost:6379"
+  password: "PASSWORD"
+  user_timeout: 60
+
+database:
+  dsn: "user:pass@tcp(localhost:3306)/db?charset=utf8mb4&parseTime=True&loc=Local"

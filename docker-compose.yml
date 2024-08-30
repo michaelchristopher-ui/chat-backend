@@ -1,5 +1,41 @@
-version: '2'
 services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
+    environment:
+      - xpack.security.enabled=false
+    volumes:
+      - ./resources/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+    healthcheck:
+      test: [ "CMD", "curl", "-s", "-f", "http://localhost:9200/_cat/health" ]
+      interval: 3s
+      timeout: 3s
+      retries: 50
+    ports:
+      - 9200:9200
+
+  filebeat:
+    build: ./resources/filebeat
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    volumes:
+      - chat-logs:/logs/
+
+  kibana:
+    build: ./resources/kibana
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-s", "-f", "http://localhost:5601/api/status" ]
+      interval: 3s
+      timeout: 3s
+      retries: 50
+    ports:
+      - 5601:5601
+    environment:
+      - setup.ilm.overwrite=true
+
   mysql:
     container_name: mysql
     image: mysql:5.7
@@ -11,19 +47,19 @@ services:
       MYSQL_ROOT_PASSWORD: 'password'
     networks:
       - db
-    
+
   redis:
     image: 'bitnami/redis:latest'
     environment:
       REDIS_PASSWORD: 'PASSWORD'
     restart: always
-    networks: 
+    networks:
       - redis
-  
+
   chat:
     build:
       context: ./
-      dockerfile: ./go-docker/Dockerfile
+      dockerfile: ./resources/go/Dockerfile
     ports:
       - "8008"
     networks:
@@ -36,18 +72,29 @@ services:
     deploy:
       replicas: 2
     restart: always
-
+    volumes:
+      - chat-logs:/logs/
+    healthcheck:
+      test: [ "CMD", "curl", "-s", "-f", "http://localhost:8008/health_check" ]
+      interval: 5s
+      timeout: 5s
+      retries: 100
 
   nginx:
-    build: ./nginx
+    build: ./resources/nginx
     ports:
       - "80:80"
     networks:
       - loadbalancing
     depends_on:
       - chat
-    
+
 networks:
   loadbalancing:
   db:
   redis:
+  elasticsearch:
+
+
+volumes:
+  chat-logs:

@@ -37,7 +37,7 @@ func (c ChatService) removeFriend(userID string, data interface{}) {
 
 	if err != nil {
 		removeFriendResp.Error = err.Error()
-		log.Printf(logRemoveMessage, err.Error())
+		log.Printf(logErrRemoveMessage, err.Error())
 		return
 	}
 }

@@ -1,6 +1,7 @@
 package accountservice
 
 import (
+	"fmt"
 	"websocket_client/internal/pkg/core/adapter/accountadapter"
 	"websocket_client/internal/pkg/core/adapter/databaseadapter"
 
@@ -11,11 +12,18 @@ import (
 func (a AccountService) Register(req accountadapter.RegisterReq) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
+		a.logger.NewError(fmt.Sprintf(logErrFormat, err.Error()))
 		return err
 	}
 
-	return a.DB.SetAccount(databaseadapter.SetAccountReq{
+	a.db.SetAccount(databaseadapter.SetAccountReq{
 		UserID:   req.UserID,
 		Password: string(hashedPassword),
 	})
+	if err != nil {
+		a.logger.NewError(fmt.Sprintf(logErrFormat, err.Error()))
+		return err
+	}
+	a.logger.NewInfo(fmt.Sprintf(logInfoRegistered, req.UserID))
+	return nil
 }

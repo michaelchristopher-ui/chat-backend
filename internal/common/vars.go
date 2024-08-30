@@ -13,6 +13,6 @@ func SetEnvVars() {
 	ServiceName = flag.String("servicename", "", "service-name")
 	NodeName = flag.String("nodename", "", "node-name")
 	IPPort = flag.String("ipport", "", "ip-address-and-port-where-this-service-is-deployed")
-	CfgPath = flag.String("configpath", "./config.yaml", "path-to-config-file")
+	CfgPath = flag.String("configpath", "./config-dev.yaml", "path-to-config-file")
 	flag.Parse()
 }
