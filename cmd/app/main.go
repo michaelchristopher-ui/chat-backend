@@ -35,7 +35,7 @@ func main() {
 
 	lgr, err := zaplogger.NewLogger()
 	if err != nil {
-		panic(fmt.Errorf("error setting up redis. %w", err))
+		panic(fmt.Errorf("error setting up logger. %w", err))
 	}
 
 	//Init Services

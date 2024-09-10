@@ -14,16 +14,24 @@ type Logger struct {
 }
 
 func NewLogger() (loggeradapter.Adapter, error) {
-	if _, err := os.Stat(fmt.Sprintf("../../logs/%s", *common.ServiceName)); os.IsNotExist(err) {
-		os.MkdirAll(fmt.Sprintf("../../logs/%s", *common.ServiceName), 0700)
+	if _, err := os.Stat(fmt.Sprintf("./logs")); err != nil {
+		if !os.IsNotExist(err) {
+			return nil, fmt.Errorf("File exists, error is: %s", err)
+		}
+		err = os.MkdirAll("./logs/", 0777)
+		if err != nil {
+			return nil, err
+		}
 	}
-	logger, err := getFileLogger(fmt.Sprintf("../../logs/%s/app.log", *common.ServiceName))
+	logger, err := getFileLogger("./logs/app.log")
 	if err != nil {
 		return nil, err
 	}
-	return &Logger{
+	ret := &Logger{
 		logger: logger,
-	}, nil
+	}
+	ret.NewInfo(fmt.Sprintf("logger set up for service %s", *common.ServiceName))
+	return ret, nil
 }
 
 func (l *Logger) NewInfo(logString string) {

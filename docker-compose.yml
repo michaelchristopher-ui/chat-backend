@@ -4,7 +4,7 @@ services:
     environment:
       - xpack.security.enabled=false
     volumes:
-      - ./resources/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./resources/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
     healthcheck:
       test: [ "CMD", "curl", "-s", "-f", "http://localhost:9200/_cat/health" ]
       interval: 3s
@@ -12,14 +12,9 @@ services:
       retries: 50
     ports:
       - 9200:9200
-
-  filebeat:
-    build: ./resources/filebeat
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-    volumes:
-      - chat-logs:/logs/
+    networks:
+      - elasticsearch
+      - kibana
 
   kibana:
     build: ./resources/kibana
@@ -35,6 +30,8 @@ services:
       - 5601:5601
     environment:
       - setup.ilm.overwrite=true
+    networks:
+      - kibana
 
   mysql:
     container_name: mysql
@@ -59,21 +56,21 @@ services:
   chat:
     build:
       context: ./
-      dockerfile: ./resources/go/Dockerfile
+      dockerfile: ./resources/chat/Dockerfile
     ports:
       - "8008"
     networks:
       - loadbalancing
       - db
       - redis
+      - elasticsearch
+      - kibana
     depends_on:
       - redis
       - mysql
     deploy:
       replicas: 2
     restart: always
-    volumes:
-      - chat-logs:/logs/
     healthcheck:
       test: [ "CMD", "curl", "-s", "-f", "http://localhost:8008/health_check" ]
       interval: 5s
@@ -94,7 +91,5 @@ networks:
   db:
   redis:
   elasticsearch:
+  kibana:
 
-
-volumes:
-  chat-logs:

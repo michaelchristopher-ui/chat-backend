@@ -1,0 +1,30 @@
+filebeat.inputs:
+  - type: filestream
+    id: app-log-input
+    enabled: true
+    paths:
+      - /app/logs/app.log
+    fields:
+      log_type: app_log
+    fields_under_root: true
+
+output.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
+  protocol: "http"
+  index: "chat-%{[host.name]}-chat-%{+yyyy.MM.dd}"  # Customize the index name using the host's name
+  protocol: "http"
+
+setup.template.name: "chat"
+setup.template.pattern: "chat-*"
+
+setup.kibana:
+  host: "kibana:5601"
+
+
+setup.ilm.enabled: false  # Disable ILM if you want full control over the index naming
+
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: ~
+  - add_docker_metadata: ~
