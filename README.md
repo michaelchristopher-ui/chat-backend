@@ -11,7 +11,7 @@ A web application that serves as a load-balanced backend for a Chat Application,
 
 - One - to - One chat among friends that spans multiple chat server instances.
 
-- Saving of messages within the database.
+- Saving and paginated retrieval of messages within the database.
 
 - Logging through Filebeat as a Sidecar, Elasticsearch and Kibana.
 
@@ -50,6 +50,12 @@ A web application that serves as a load-balanced backend for a Chat Application,
 - NGINX
 
 - Docker
+
+- Elasticsearch
+
+- Kibana
+
+- Filebeat
 
 # Setup
 
