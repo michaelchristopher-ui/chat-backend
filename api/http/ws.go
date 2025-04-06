@@ -14,6 +14,12 @@ import (
 
 // Websocket is the handler method for the /ws api endpoint
 func (integrator *APIIntegrator) Websocket(c echo.Context) error {
+	var err error
+	defer func() {
+		if err != nil {
+			integrator.Logger.NewError(err.Error())
+		}
+	}()
 	userId, password, err := common.SplitUserIDAndPasswordFromAuth(c.Request().Header.Get("Authorization"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, structs.ErrorRet{
@@ -31,12 +37,13 @@ func (integrator *APIIntegrator) Websocket(c echo.Context) error {
 			Error: err.Error(),
 		})
 	}
-	log.Printf("userid: %s", userId)
+
 	req := chatadapter.WebsocketHandlerReq{
 		ResponseWriter: c.Response(),
 		Request:        c.Request(),
 		UserID:         userId,
 	}
+	log.Printf("success for user %s", userId)
 	err = integrator.ChatService.WebsocketHandler(req)
 	if err != nil {
 		return c.JSON(websocket.CloseAbnormalClosure, structs.ErrorRet{

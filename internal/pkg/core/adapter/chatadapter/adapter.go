@@ -2,10 +2,11 @@ package chatadapter
 
 import "net/http"
 
+//go:generate mockgen -source=adapter.go -package=chatadapter -destination=adapter_mock.go
 // Adapter defines an interface for the chat feature
 type Adapter interface {
 	WebsocketHandler(req WebsocketHandlerReq) error
-	ReceiveMessage(req ReceiveMessageReq) error
+	ReceiveMessage(req ReceiveMessageReq) (bool, error)
 }
 
 type AddFriendReq struct {
@@ -26,8 +27,6 @@ type ReceiveMessageReq struct {
 	ToUserID   string
 	Timestamp  string
 }
-
-type ReceiveMessageRes struct{}
 
 type GetMessagesReq struct {
 	FromUserID     string

@@ -12,6 +12,7 @@ import (
 type APIIntegrator struct {
 	ChatService    chatadapter.Adapter
 	AccountService accountadapter.Adapter
+	Logger         loggeradapter.Adapter
 }
 
 /*
@@ -23,6 +24,7 @@ func NewAPIIntegrator(req NewAPIIntegratorReq) *APIIntegrator {
 	return &APIIntegrator{
 		ChatService:    req.ChatService,
 		AccountService: req.AccountService,
+		Logger:         req.Logger,
 	}
 }
 
@@ -37,6 +39,7 @@ func API(req APIReq) {
 	integrator := NewAPIIntegrator(NewAPIIntegratorReq{
 		ChatService:    req.ChatService,
 		AccountService: req.AccountService,
+		Logger:         req.Logger,
 	})
 
 	chat := req.E.Group("")

@@ -13,6 +13,7 @@ output.elasticsearch:
   protocol: "http"
   index: "chat-%{[host.name]}-chat-%{+yyyy.MM.dd}"  # Customize the index name using the host's name
   protocol: "http"
+  setup.dashboards.enabled: true
 
 setup.template.name: "chat"
 setup.template.pattern: "chat-*"

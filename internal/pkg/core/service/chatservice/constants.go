@@ -20,6 +20,7 @@ const (
 	incomingMessageTypeAddFriend      = "ADDFRIEND"
 	incomingMessageTypeGetChatHistory = "GETCHATHISTORY"
 	incomingMessageTypeRemoveFriend   = "REMOVEFRIEND"
+	incomingMessageTypeSearchFriend   = "SEARCHFRIEND"
 )
 
 //This group of constants define all the possible message types

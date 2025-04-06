@@ -18,6 +18,7 @@ type server struct {
 	writeTimeout time.Duration
 }
 
+// NewServer initializes a server instance. Server must be started with StartServer.
 func NewServer() server {
 	e := echo.New()
 
@@ -31,23 +32,26 @@ func NewServer() server {
 	}
 }
 
+// GetEcho is a getter for the echo instance
 func (h server) GetEcho() *echo.Echo {
 	return h.e
 }
 
+// StartServer starts the server
 func (h server) StartServer() {
 	s := &http.Server{
 		Addr:         ":8008",
 		ReadTimeout:  h.readTimeout,
 		WriteTimeout: h.writeTimeout,
 	}
-	//h.registrator.RegisterServiceNode(context.Background(), *common.ServiceName, *common.NodeName, *common.IPPort, time.Duration(config.GetConfig().Etcd.TTL)*time.Second)
-	//This can actually be made to run in a goroutine
+
+	//TODO: To prepare for a more sophisticated service discovery solution, preferably register here with a function with a signature like below.
+	// h.registrator.RegisterServiceNode(context.Background(), *common.ServiceName, *common.NodeName, *common.IPPort, time.Duration(config.GetConfig().Etcd.TTL)*time.Second)
+	// The function will Record the service, node names and IP for connection purposes, and periodically ping the service discovery server to indicate that the server is still online.
+
 	if err := h.e.StartServer(s); err != nil && err != http.ErrServerClosed {
 		h.e.Logger.Error(err)
 		h.e.Logger.Info("Shutting down the server")
 		os.Exit(1)
 	}
 }
-
-//etcdctl get --prefix d --user="root" --password="PASSWORD"

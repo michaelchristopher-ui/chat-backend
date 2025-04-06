@@ -8,18 +8,18 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// VerifyAuth is a function to define whether or not the supplied password for the user is correct
+// VerifyAuth is a function to define whether or not the supplied password for the user is correct by comparing the hash values
 func (a AccountService) VerifyAuth(req accountadapter.VerifyAuthReq) error {
 	account, err := a.db.GetAccount(databaseadapter.GetAccountReq{
 		UserId: req.UserID,
 	})
 	if err != nil {
-		a.logger.NewError(fmt.Sprintf(logErrFormat, err.Error()))
+		a.logger.NewError(fmt.Sprintf(logErrVerifyAuthFormat, err.Error()))
 		return err
 	}
 	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(req.Password))
 	if err != nil {
-		a.logger.NewError(fmt.Sprintf(logErrFormat, err.Error()))
+		a.logger.NewError(fmt.Sprintf(logErrVerifyAuthFormat, err.Error()))
 		return err
 	}
 

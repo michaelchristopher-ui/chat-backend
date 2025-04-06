@@ -8,20 +8,20 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// Register encrypts the password with bcrypt with default cost before creating a new account entry in the db
+// Register encrypts the password with bcrypt with default cost (10) before creating a new account entry in the db
 func (a AccountService) Register(req accountadapter.RegisterReq) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
-		a.logger.NewError(fmt.Sprintf(logErrFormat, err.Error()))
+		a.logger.NewError(fmt.Sprintf(logErrRegisterFormat, "Error when hashing password", err.Error()))
 		return err
 	}
 
-	a.db.SetAccount(databaseadapter.SetAccountReq{
+	err = a.db.SetAccount(databaseadapter.SetAccountReq{
 		UserID:   req.UserID,
 		Password: string(hashedPassword),
 	})
 	if err != nil {
-		a.logger.NewError(fmt.Sprintf(logErrFormat, err.Error()))
+		a.logger.NewError(fmt.Sprintf(logErrRegisterFormat, "Error when setting account", err.Error()))
 		return err
 	}
 	a.logger.NewInfo(fmt.Sprintf(logInfoRegistered, req.UserID))

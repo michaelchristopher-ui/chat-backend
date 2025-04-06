@@ -5,6 +5,7 @@ import (
 	apihttp "websocket_client/api/http"
 	"websocket_client/internal/common"
 	"websocket_client/internal/conf"
+	"websocket_client/internal/pkg/core/adapter/loggeradapter"
 	"websocket_client/internal/pkg/core/service/accountservice"
 	"websocket_client/internal/pkg/core/service/chatservice"
 	"websocket_client/internal/pkg/platform/mysql"
@@ -16,26 +17,42 @@ import (
 func main() {
 	//Environment Variables
 	common.SetEnvVars()
+	startServer()
+}
 
-	err := conf.Init(*common.CfgPath)
+func startServer() {
+	var lgr loggeradapter.Adapter
+
+	// Panic catcher before restarting server if error
+	defer func() {
+		if err := recover(); err != nil {
+			if lgr != nil {
+				lgr.NewError(fmt.Sprintf("[StartServer] Server panicked, err: %v", err))
+			}
+			startServer()
+		}
+	}()
+	//Init custom zap logger
+	lgr, err := zaplogger.NewLogger()
 	if err != nil {
-		panic(fmt.Errorf("error parsing config. %w", err))
+		panic(fmt.Sprintf("error setting up logger, err: %s", err.Error()))
+	}
+
+	//Init Configs
+	err = conf.Init(*common.CfgPath)
+	if err != nil {
+		panic(fmt.Sprintf("error parsing config, err: %s", err.Error()))
 	}
 
 	//Init Components of Services
 	db, err := mysql.NewDatabase()
 	if err != nil {
-		panic(fmt.Errorf("error setting up database. %w", err))
+		panic(fmt.Sprintf("error setting up database, err: %s", err.Error()))
 	}
 
 	rds, err := redis.NewRedis()
 	if err != nil {
-		panic(fmt.Errorf("error setting up redis. %w", err))
-	}
-
-	lgr, err := zaplogger.NewLogger()
-	if err != nil {
-		panic(fmt.Errorf("error setting up logger. %w", err))
+		panic(fmt.Sprintf("error setting up redis, err: %s", err.Error()))
 	}
 
 	//Init Services
@@ -61,5 +78,6 @@ func main() {
 		Logger:         lgr,
 	})
 
+	//Start the server
 	srv.StartServer()
 }

@@ -47,4 +47,5 @@ type MessagePayload struct {
 	Type       int    `json:"type"`
 	FromUserID string `json:"from_user_id"`
 	Timestamp  string `json:"timestamp"`
+	ToUserID   string `json:"to_user_id"`
 }

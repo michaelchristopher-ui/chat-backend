@@ -14,9 +14,9 @@ type Logger struct {
 }
 
 func NewLogger() (loggeradapter.Adapter, error) {
-	if _, err := os.Stat(fmt.Sprintf("./logs")); err != nil {
+	if _, err := os.Stat("./logs"); err != nil {
 		if !os.IsNotExist(err) {
-			return nil, fmt.Errorf("File exists, error is: %s", err)
+			return nil, fmt.Errorf("file exists, error is: %s", err)
 		}
 		err = os.MkdirAll("./logs/", 0777)
 		if err != nil {
@@ -34,12 +34,14 @@ func NewLogger() (loggeradapter.Adapter, error) {
 	return ret, nil
 }
 
+// Inserts a new info log with new line added to the end into the log file, using zap's sugared logger.
 func (l *Logger) NewInfo(logString string) {
-	l.logger.Sugar().Info(logString)
+	l.logger.Sugar().Info(logString + "\n")
 	l.logger.Sync()
 }
 
+// Inserts a new error log with new line added to the end into the log file, using zap's sugared logger.
 func (l *Logger) NewError(logString string) {
-	l.logger.Sugar().Error(logString)
+	l.logger.Sugar().Error(logString + "\n")
 	l.logger.Sync()
 }

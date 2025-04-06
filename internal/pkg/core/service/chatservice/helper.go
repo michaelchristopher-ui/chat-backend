@@ -8,6 +8,8 @@ import (
 	"log"
 	"net/http"
 	"websocket_client/internal/pkg/core/adapter/databaseadapter"
+
+	"github.com/go-redis/redis/v8"
 )
 
 /*
@@ -42,7 +44,7 @@ func (c ChatService) broadcastEmptyMessageToFriends(userID string, messageType i
 				FromUserID: userID,
 				Type:       messageType,
 			}
-			err := c.publishMessage(publishMessageReq)
+			_, err := c.publishMessage(publishMessageReq)
 			if err != nil {
 				log.Printf(logErrMessageCannotPublish, err.Error(), publishMessageReq)
 			}
@@ -59,8 +61,8 @@ type PublishMessageReq struct {
 	Message    string `json:"message"`
 	Type       int    `json:"type"`
 	ToUserID   string `json:"to_user_id"`
-	FromUserID string `json:"-"`
-	Timestamp  string `json:"-"`
+	FromUserID string `json:"from_user_id"`
+	Timestamp  string `json:"timestamp"`
 }
 
 /*
@@ -71,46 +73,59 @@ publishMessage is a function that:
 
 An error is expected to not be returned if the user is not online when the request to the HTTP endpoint is made
 */
-func (c ChatService) publishMessage(req PublishMessageReq) error {
+func (c ChatService) publishMessage(req PublishMessageReq) (isOnline bool, err error) {
 	//Checks whether the user IP is available
 	ip, err := c.getActualIP(req.ToUserID)
-	if err != nil {
-		return err
+	if ip == "" && err == nil {
+		err = fmt.Errorf(logIPEmpty, req.ToUserID)
 	}
-	if ip == "" {
-		return fmt.Errorf(logIPEmpty, ip)
+	if err != nil && err == redis.Nil {
+		//Return false, user is not online.
+		c.Logger.NewError("[ChatService][publishMessage] user was not online when attempting to send message")
+		return false, nil
+	}
+	if err != nil {
+		c.Logger.NewError(fmt.Sprintf("[ChatService][publishMessage] error when obtaining recipient ip, err: %s", err.Error()))
+		return false, err
 	}
 
-	//Attempts to send the message to the recipient through a request to a specific HTTP endpoint
+	// Sets up the message payload
 	msg := MessagePayload{
 		Message:    req.Message,
 		FromUserID: req.FromUserID,
+		ToUserID:   req.ToUserID,
 		Type:       req.Type,
 		Timestamp:  req.Timestamp,
 	}
 	payload, err := json.Marshal(msg)
 	if err != nil {
-		return err
+		c.Logger.NewError(fmt.Sprintf("[ChatService][publishMessage] error when marshaling payload, err: %s", err.Error()))
+		return false, err
 	}
 	bytePayload := bytes.NewBuffer(payload)
 
+	// Attempts to send the message to the recipient through a request to a specific HTTP endpoint
 	request, err := http.NewRequest("POST", "http://"+ip+"/receive", bytePayload)
 	if err != nil {
-		return err
+		c.Logger.NewError(fmt.Sprintf("[ChatService][publishMessage] error when creating request instance, err: %s", err.Error()))
+		return false, err
 	}
-
 	client := &http.Client{}
 	response, err := client.Do(request)
 	if err != nil {
-		return err
+		c.Logger.NewError(fmt.Sprintf("[ChatService][publishMessage] error when executing request, err: %s", err.Error()))
+		return false, err
 	}
+
+	// Closes the body to prevent further writing
 	defer response.Body.Close()
 
+	// Decodes the response
 	data := map[string]interface{}{}
-
 	err = json.NewDecoder(response.Body).Decode(&data)
 	if err != nil {
-		return err
+		c.Logger.NewError(fmt.Sprintf("[ChatService][publishMessage] error when decoding response body, err: %s", err.Error()))
+		return false, err
 	}
 
 	if _, ok := data["error"]; ok {
@@ -121,5 +136,10 @@ func (c ChatService) publishMessage(req PublishMessageReq) error {
 		}
 	}
 
-	return err
+	if _, ok := data["is_online"]; ok {
+		// By default, isOnline will be false should the conversion fail, but we log it anyway.
+		isOnline = data["is_online"].(bool)
+	}
+
+	return isOnline, err
 }

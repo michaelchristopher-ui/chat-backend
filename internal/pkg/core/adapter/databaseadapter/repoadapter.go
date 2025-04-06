@@ -7,6 +7,8 @@ import (
 )
 
 // Repoadapter defines an interface for a persistent database
+//
+//go:generate mockgen -source=repoadapter.go -package=databaseadapter -destination=repoadapter_mock.go
 type RepoAdapter interface {
 	GetUserFriends(req GetUserFriendsReq) ([]models.UserFriends, error)
 	DoCustomTransaction(fc func(tx *gorm.DB) error) error
@@ -14,7 +16,9 @@ type RepoAdapter interface {
 	GetChatHistory(req GetChatHistoryReq) ([]models.Messages, error)
 	GetAccount(req GetAccountReq) (models.Account, error)
 	SetAccount(req SetAccountReq) error
+	SaveChatHistoryWithTx(tx *gorm.DB, req SaveChatHistoryWithTxReq) error
 	RemoveFriend(req RemoveFriendReq) error
+	SearchFriend(req SearchFriendRequest) (users []models.Account, err error)
 }
 
 type GetAccountReq struct {
@@ -29,6 +33,10 @@ type SetAccountReq struct {
 type GetUserFriendsReq struct {
 	UserID   string
 	FriendID string
+}
+
+type SearchFriendRequest struct {
+	UserID string
 }
 
 type AddFriendReq struct {
@@ -57,10 +65,11 @@ type GetChatHistoryReq struct {
 	TimestampAfter string
 }
 
-type SendFunctionParam struct {
-	Message    string `json:"message"`
-	Type       int    `json:"type"`
-	ToUserID   string `json:"to_user_id"`
-	FromUserID string `json:"-"`
-	Timestamp  string `json:"-"`
+type SaveChatHistoryWithTxReq struct {
+	ID         string
+	Message    string
+	ToUserID   string
+	Type       int
+	FromUserID string
+	Timestamp  string
 }

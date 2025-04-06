@@ -31,7 +31,7 @@ COPY --from=builder /app/cmd/app/config.yaml /app/config.yaml
 WORKDIR /app
 
 # Copy Filebeat configuration file (assumes you have a `filebeat.yml` file in your project)
-COPY ./resources/go/filebeat.yml ${FILEBEAT_CONFIG_PATH}
+COPY ./resources/chat/filebeat.yml ${FILEBEAT_CONFIG_PATH}
 
 # Expose necessary ports (update if your app requires specific ports)
 EXPOSE 8008

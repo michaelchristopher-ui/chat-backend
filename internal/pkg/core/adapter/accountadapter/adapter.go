@@ -1,5 +1,6 @@
 package accountadapter
 
+//go:generate mockgen -source=adapter.go -package=accountadapter -destination=adapter_mock_test.go
 // Adapter defines an interface for the account feature
 type Adapter interface {
 	VerifyAuth(VerifyAuthReq) error
