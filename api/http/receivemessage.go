@@ -27,8 +27,8 @@ func (integrator *APIIntegrator) ReceiveMessage(c echo.Context) error {
 		ToUserID:   req.ToUserID,
 		Timestamp:  req.Timestamp,
 	})
-	if isOnline && err != nil {
-		integrator.Logger.NewError(fmt.Sprintf("[Integrator][ReceiveMesssage] Error when sending message to online user, err: %s", err.Error()))
+	if err != nil {
+		integrator.Logger.NewError(fmt.Sprintf("[Integrator][ReceiveMesssage] Error when sending message to user with ID %s, online: %v, err: %s", req.ToUserID, isOnline, err.Error()))
 		return c.JSON(http.StatusInternalServerError, structs.ErrorRet{
 			Error: err.Error(),
 		})

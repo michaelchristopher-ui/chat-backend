@@ -50,6 +50,7 @@ func TestReceiveMessage(t *testing.T) {
 					ToUserID:   "user2",
 					Timestamp:  "2025-04-02T06:53:00Z",
 				}).Return(true, nil).Times(1)
+				mockLogger.EXPECT().NewInfo(gomock.Any()).Times(1)
 			},
 			assertions: func(res error, rec *httptest.ResponseRecorder) {
 				if assert.NoError(t, res) {
@@ -57,7 +58,7 @@ func TestReceiveMessage(t *testing.T) {
 					expected, _ := json.Marshal(ReceiveMessageRes{
 						IsOnline: true,
 					})
-					assert.Equal(t, expected, rec.Body.String())
+					assert.Equal(t, string(expected)+"\n", rec.Body.String())
 				}
 			},
 		},
@@ -78,6 +79,7 @@ func TestReceiveMessage(t *testing.T) {
 					ToUserID:   "user2",
 					Timestamp:  "2025-04-02T06:53:00Z",
 				}).Return(false, nil).Times(1)
+				mockLogger.EXPECT().NewInfo(gomock.Any()).Times(1)
 			},
 			assertions: func(res error, rec *httptest.ResponseRecorder) {
 				if assert.NoError(t, res) {
@@ -85,7 +87,7 @@ func TestReceiveMessage(t *testing.T) {
 					expected, _ := json.Marshal(ReceiveMessageRes{
 						IsOnline: false,
 					})
-					assert.Equal(t, expected, rec.Body.String())
+					assert.Equal(t, string(expected)+"\n", rec.Body.String())
 				}
 			},
 		},
@@ -105,7 +107,8 @@ func TestReceiveMessage(t *testing.T) {
 					Type:       1,
 					ToUserID:   "user2",
 					Timestamp:  "2025-04-02T06:53:00Z",
-				}).Return(errors.New("foo")).Times(1)
+				}).Return(false, errors.New("foo")).Times(1)
+				mockLogger.EXPECT().NewError(gomock.Any()).Times(1)
 			},
 			assertions: func(res error, rec *httptest.ResponseRecorder) {
 				if assert.NoError(t, res) {
@@ -120,7 +123,9 @@ func TestReceiveMessage(t *testing.T) {
 		{
 			name:      "Test if wrong body returns error",
 			wrongBody: true,
-			mock:      func() {},
+			mock: func() {
+				mockLogger.EXPECT().NewError(gomock.Any()).Times(1)
+			},
 			assertions: func(res error, rec *httptest.ResponseRecorder) {
 				if assert.NoError(t, res) {
 					assert.Equal(t, http.StatusInternalServerError, rec.Code)

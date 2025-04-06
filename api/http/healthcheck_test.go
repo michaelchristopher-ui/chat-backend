@@ -28,7 +28,7 @@ func TestHealthCheck(t *testing.T) {
 		{
 			name: "Test if HealthCheck returns correct response",
 			mock: func() {
-				// No mocks needed for this simple function
+				mockLogger.EXPECT().NewInfo(gomock.Any()).Times(1)
 			},
 			assertions: func(res error, rec *httptest.ResponseRecorder) {
 				if assert.NoError(t, res) {

@@ -21,7 +21,7 @@ func (integrator APIIntegrator) RegisterAccount(c echo.Context) error {
 		})
 	}
 	//Validate password length. Since we're using BCrypt it must be 72 characters or less, starting from the 0 index.
-	if len(req.Password) < 72 {
+	if len(req.Password) > 72 {
 		integrator.Logger.NewInfo(fmt.Sprintf("[Integrator][RegisterAccount] Password is not shorter than 72 bytes, ID: %s", req.UserID))
 		return c.JSON(http.StatusBadRequest, structs.ErrorRet{
 			Error: "",
