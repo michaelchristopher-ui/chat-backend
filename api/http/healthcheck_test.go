@@ -7,7 +7,7 @@ import (
 	"websocket_client/internal/pkg/core/adapter/loggeradapter"
 
 	"github.com/golang/mock/gomock"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -28,7 +28,7 @@ func TestHealthCheck(t *testing.T) {
 		{
 			name: "Test if HealthCheck returns correct response",
 			mock: func() {
-				mockLogger.EXPECT().NewInfo(gomock.Any()).Times(1)
+				mockLogger.EXPECT().NewInfo(gomock.Any(), gomock.Any()).Times(1)
 			},
 			assertions: func(res error, rec *httptest.ResponseRecorder) {
 				if assert.NoError(t, res) {

@@ -18,7 +18,7 @@ type RepoAdapter interface {
 	SetAccount(req SetAccountReq) error
 	SaveChatHistoryWithTx(tx *gorm.DB, req SaveChatHistoryWithTxReq) error
 	RemoveFriend(req RemoveFriendReq) error
-	SearchFriend(req SearchFriendRequest) (users []models.Account, err error)
+	SearchUser(req SearchUserRequest) (users []models.Account, err error)
 }
 
 type GetAccountReq struct {
@@ -35,7 +35,7 @@ type GetUserFriendsReq struct {
 	FriendID string
 }
 
-type SearchFriendRequest struct {
+type SearchUserRequest struct {
 	UserID string
 }
 

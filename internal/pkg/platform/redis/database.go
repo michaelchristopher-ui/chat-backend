@@ -51,7 +51,9 @@ func (r Redis) SetValueUntilChannelClose(key string, data string, ttl int, isOpe
 		ticker := time.NewTicker(time.Duration(ttl-2) * time.Second)
 		defer func() {
 			ticker.Stop()
-			r.Delete(key)
+			if err := r.Delete(key); err != nil {
+				r.lgr.NewError(fmt.Sprintf("[Redis][SetValueUntilChannelClose] Error when deleting key %s, err: %s", key, err))
+			}
 		}()
 
 		/*

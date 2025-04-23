@@ -34,25 +34,35 @@ func (m *MockAdapter) EXPECT() *MockAdapterMockRecorder {
 }
 
 // NewError mocks base method.
-func (m *MockAdapter) NewError(logString string) {
+func (m *MockAdapter) NewError(logString string, params ...any) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "NewError", logString)
+	varargs := []interface{}{logString}
+	for _, a := range params {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "NewError", varargs...)
 }
 
 // NewError indicates an expected call of NewError.
-func (mr *MockAdapterMockRecorder) NewError(logString interface{}) *gomock.Call {
+func (mr *MockAdapterMockRecorder) NewError(logString interface{}, params ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewError", reflect.TypeOf((*MockAdapter)(nil).NewError), logString)
+	varargs := append([]interface{}{logString}, params...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewError", reflect.TypeOf((*MockAdapter)(nil).NewError), varargs...)
 }
 
 // NewInfo mocks base method.
-func (m *MockAdapter) NewInfo(logString string) {
+func (m *MockAdapter) NewInfo(logString string, params ...any) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "NewInfo", logString)
+	varargs := []interface{}{logString}
+	for _, a := range params {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "NewInfo", varargs...)
 }
 
 // NewInfo indicates an expected call of NewInfo.
-func (mr *MockAdapterMockRecorder) NewInfo(logString interface{}) *gomock.Call {
+func (mr *MockAdapterMockRecorder) NewInfo(logString interface{}, params ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewInfo", reflect.TypeOf((*MockAdapter)(nil).NewInfo), logString)
+	varargs := append([]interface{}{logString}, params...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "NewInfo", reflect.TypeOf((*MockAdapter)(nil).NewInfo), varargs...)
 }

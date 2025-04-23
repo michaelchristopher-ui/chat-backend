@@ -3,6 +3,7 @@ package zaplogger
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"websocket_client/internal/common"
 	"websocket_client/internal/pkg/core/adapter/loggeradapter"
 
@@ -34,14 +35,28 @@ func NewLogger() (loggeradapter.Adapter, error) {
 	return ret, nil
 }
 
+func (l *Logger) getCaller() string {
+	/*
+		GetCaller is called by Logger functions such as NewInfo, which is then called by the functions that
+		require logging. i.e.:
+		calling function -> NewXXX -> l.getCaller()
+
+		Hence we would need to ascend two times.
+		Should we fail to retrieve the caller, the exact log string would need to be searched.
+	*/
+	counter, _, _, success := runtime.Caller(2)
+	if !success {
+		return "unknownCaller"
+	}
+	return runtime.FuncForPC(counter).Name()
+}
+
 // Inserts a new info log with new line added to the end into the log file, using zap's sugared logger.
-func (l *Logger) NewInfo(logString string) {
-	l.logger.Sugar().Info(logString + "\n")
-	l.logger.Sync()
+func (l *Logger) NewInfo(logString string, params ...any) {
+	l.logger.Sugar().Infof(logString, l.getCaller(), params)
 }
 
 // Inserts a new error log with new line added to the end into the log file, using zap's sugared logger.
-func (l *Logger) NewError(logString string) {
-	l.logger.Sugar().Error(logString + "\n")
-	l.logger.Sync()
+func (l *Logger) NewError(logString string, params ...any) {
+	l.logger.Sugar().Errorf(logString, l.getCaller(), params)
 }

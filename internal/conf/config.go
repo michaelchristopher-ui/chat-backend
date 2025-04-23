@@ -19,6 +19,7 @@ type Server struct {
 	ReadTimeout  int    `yaml:"read_timeout"`
 	WriteTimeout int    `yaml:"write_timeout"`
 	Port         string `yaml:"port"`
+	RateLimit    int    `yaml:"rate_limit"`
 }
 
 //Database defines the stored config values of the database block within the yaml file

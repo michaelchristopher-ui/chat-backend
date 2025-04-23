@@ -2,16 +2,24 @@ package main
 
 import (
 	"fmt"
+	"sync"
 	apihttp "websocket_client/api/http"
 	"websocket_client/internal/common"
 	"websocket_client/internal/conf"
 	"websocket_client/internal/pkg/core/adapter/loggeradapter"
+	"websocket_client/internal/pkg/core/adapter/wsconnadapter"
 	"websocket_client/internal/pkg/core/service/accountservice"
 	"websocket_client/internal/pkg/core/service/chatservice"
+	"websocket_client/internal/pkg/core/service/senderservice"
+	"websocket_client/internal/pkg/core/service/wsprocessorservice"
+	"websocket_client/internal/pkg/core/service/wsstoreservice"
+	wsupgrader "websocket_client/internal/pkg/core/service/wsupgraderservice"
 	"websocket_client/internal/pkg/platform/mysql"
 	"websocket_client/internal/pkg/platform/redis"
 	"websocket_client/internal/pkg/platform/zaplogger"
 	"websocket_client/internal/transport"
+
+	"github.com/gorilla/websocket"
 )
 
 func main() {
@@ -27,7 +35,7 @@ func startServer() {
 	defer func() {
 		if err := recover(); err != nil {
 			if lgr != nil {
-				lgr.NewError(fmt.Sprintf("[StartServer] Server panicked, err: %v", err))
+				lgr.NewError(" Server panicked, err: %v", err)
 			}
 			startServer()
 		}
@@ -55,16 +63,42 @@ func startServer() {
 		panic(fmt.Sprintf("error setting up redis, err: %s", err.Error()))
 	}
 
-	//Init Services
-	chatService := chatservice.NewChatService(chatservice.NewChatServiceReq{
+	//Init Sub-Services
+	senderService := senderservice.NewSenderService(senderservice.NewSenderServiceReq{
 		DB:     db,
 		Redis:  rds,
 		Logger: lgr,
 	})
 
+	//Init Services
+	chatService := chatservice.NewChatService(chatservice.NewChatServiceReq{
+		DB:     db,
+		Redis:  rds,
+		Logger: lgr,
+		Sender: senderService,
+		WsStore: wsstoreservice.NewChatBackendService(wsstoreservice.NewWsStoreServiceReq{
+			UserConnections: map[string]wsconnadapter.Adapter{},
+			Lock:            map[string]*sync.Mutex{},
+		}),
+	})
+
 	accountService := accountservice.NewAccountService(accountservice.NewAccountServiceReq{
 		DB:     db,
 		Logger: lgr,
+	})
+
+	wsstoreService := wsstoreservice.NewChatBackendService(wsstoreservice.NewWsStoreServiceReq{
+		UserConnections: make(map[string]wsconnadapter.Adapter),
+		Lock:            make(map[string]*sync.Mutex),
+	})
+
+	upgraderService := wsupgrader.NewWsUpgraderService(wsupgrader.NewWsUpgraderServiceReq{
+		Upgrader: websocket.Upgrader{},
+	})
+
+	processorService := wsprocessorservice.NewWsProcessorService(wsprocessorservice.WsProcessorServiceReq{
+		Logger:  lgr,
+		WsStore: wsstoreService,
 	})
 
 	//Init server
@@ -76,6 +110,8 @@ func startServer() {
 		ChatService:    chatService,
 		AccountService: accountService,
 		Logger:         lgr,
+		WsProcessor:    processorService,
+		Upgrader:       upgraderService,
 	})
 
 	//Start the server

@@ -1,0 +1,1 @@
+{"level":"INFO","timestamp":"2025-04-14T12:11:32.520+0700","caller":"zaplogger/logger.go:56","msg":"logger set up for service dummyservice%!(EXTRA string=websocket_client/internal/pkg/platform/zaplogger.NewLogger, []interface {}=[])"}

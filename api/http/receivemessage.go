@@ -7,7 +7,7 @@ import (
 	"websocket_client/api/http/structs"
 	"websocket_client/internal/pkg/core/adapter/chatadapter"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // ReceiveMessage is the handler method for the /receive api endpoint.
@@ -20,10 +20,9 @@ func (integrator *APIIntegrator) ReceiveMessage(c echo.Context) error {
 			Error: err.Error(),
 		})
 	}
-	isOnline, err := integrator.ChatService.ReceiveMessage(chatadapter.ReceiveMessageReq{
+	isOnline, err := integrator.ChatService.ReceiveMessage(req.ToUserID, chatadapter.Message{
 		Message:    req.Message,
 		FromUserID: req.FromUserID,
-		Type:       req.Type,
 		ToUserID:   req.ToUserID,
 		Timestamp:  req.Timestamp,
 	})

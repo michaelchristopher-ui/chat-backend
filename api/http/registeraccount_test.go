@@ -12,7 +12,7 @@ import (
 	"websocket_client/internal/pkg/core/adapter/loggeradapter"
 
 	"github.com/golang/mock/gomock"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -51,6 +51,26 @@ func TestRegisterAccount(t *testing.T) {
 				if assert.NoError(t, res) {
 					assert.Equal(t, http.StatusOK, rec.Code)
 					assert.Equal(t, "null\n", rec.Body.String())
+				}
+			},
+		},
+		{
+			name: "Test if correct body returns error should the password be more than 72 characters",
+			reqBody: RegisterAccountReq{
+				UserID:   "a",
+				Password: "CNKBVNRMXUEMSFSRLKJQBLYTQEWBGYCCKQGHZZMWDLNTCUMRYEXSCPPEHSGQHNLCQEBFGKWTJ",
+			},
+			mock: func() {
+				mockLogger.EXPECT().NewInfo(gomock.Any()).Times(1)
+
+			},
+			assertions: func(res error, rec *httptest.ResponseRecorder) {
+				if assert.NoError(t, res) {
+					assert.Equal(t, http.StatusBadRequest, rec.Code)
+					expected, _ := json.Marshal(structs.ErrorRet{
+						Error: returnErrorPasswordLength,
+					})
+					assert.Equal(t, string(expected)+"\n", rec.Body.String())
 				}
 			},
 		},
@@ -95,7 +115,7 @@ func TestRegisterAccount(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			// Set up the body. Below, we handle one unique case first which is the invalid json before going to different requests controlled by the wrongBody boolean.
-			var req *http.Request = httptest.NewRequest(http.MethodPost, "/register", bytes.NewReader([]byte("{invalid_json}")))
+			req := httptest.NewRequest(http.MethodPost, "/register", bytes.NewReader([]byte("{invalid_json}")))
 			if !test.wrongBody {
 				jsonData, err := json.Marshal(test.reqBody)
 				assert.NoError(t, err)

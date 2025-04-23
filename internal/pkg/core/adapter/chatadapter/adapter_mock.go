@@ -6,8 +6,10 @@ package chatadapter
 
 import (
 	reflect "reflect"
+	wsconnadapter "websocket_client/internal/pkg/core/adapter/wsconnadapter"
 
 	gomock "github.com/golang/mock/gomock"
+	gorm "gorm.io/gorm"
 )
 
 // MockAdapter is a mock of Adapter interface.
@@ -33,31 +35,125 @@ func (m *MockAdapter) EXPECT() *MockAdapterMockRecorder {
 	return m.recorder
 }
 
-// ReceiveMessage mocks base method.
-func (m *MockAdapter) ReceiveMessage(req ReceiveMessageReq) (bool, error) {
+// AddConn mocks base method.
+func (m *MockAdapter) AddConn(conn *wsconnadapter.Adapter, userID string) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReceiveMessage", req)
+	m.ctrl.Call(m, "AddConn", conn, userID)
+}
+
+// AddConn indicates an expected call of AddConn.
+func (mr *MockAdapterMockRecorder) AddConn(conn, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddConn", reflect.TypeOf((*MockAdapter)(nil).AddConn), conn, userID)
+}
+
+// AddFriend mocks base method.
+func (m *MockAdapter) AddFriend(data AddFriendReq) AddFriendResp {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddFriend", data)
+	ret0, _ := ret[0].(AddFriendResp)
+	return ret0
+}
+
+// AddFriend indicates an expected call of AddFriend.
+func (mr *MockAdapterMockRecorder) AddFriend(data interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddFriend", reflect.TypeOf((*MockAdapter)(nil).AddFriend), data)
+}
+
+// DeleteConn mocks base method.
+func (m *MockAdapter) DeleteConn(userID string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "DeleteConn", userID)
+}
+
+// DeleteConn indicates an expected call of DeleteConn.
+func (mr *MockAdapterMockRecorder) DeleteConn(userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteConn", reflect.TypeOf((*MockAdapter)(nil).DeleteConn), userID)
+}
+
+// GetChatHistory mocks base method.
+func (m *MockAdapter) GetChatHistory(data GetChatHistoryReq) GetChatHistoryResp {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetChatHistory", data)
+	ret0, _ := ret[0].(GetChatHistoryResp)
+	return ret0
+}
+
+// GetChatHistory indicates an expected call of GetChatHistory.
+func (mr *MockAdapterMockRecorder) GetChatHistory(data interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetChatHistory", reflect.TypeOf((*MockAdapter)(nil).GetChatHistory), data)
+}
+
+// ReceiveMessage mocks base method.
+func (m *MockAdapter) ReceiveMessage(userID string, message any) (bool, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReceiveMessage", userID, message)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ReceiveMessage indicates an expected call of ReceiveMessage.
-func (mr *MockAdapterMockRecorder) ReceiveMessage(req interface{}) *gomock.Call {
+func (mr *MockAdapterMockRecorder) ReceiveMessage(userID, message interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReceiveMessage", reflect.TypeOf((*MockAdapter)(nil).ReceiveMessage), req)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReceiveMessage", reflect.TypeOf((*MockAdapter)(nil).ReceiveMessage), userID, message)
 }
 
-// WebsocketHandler mocks base method.
-func (m *MockAdapter) WebsocketHandler(req WebsocketHandlerReq) error {
+// RemoveFriend mocks base method.
+func (m *MockAdapter) RemoveFriend(data RemoveFriendReq) RemoveFriendResp {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "WebsocketHandler", req)
-	ret0, _ := ret[0].(error)
+	ret := m.ctrl.Call(m, "RemoveFriend", data)
+	ret0, _ := ret[0].(RemoveFriendResp)
 	return ret0
 }
 
-// WebsocketHandler indicates an expected call of WebsocketHandler.
-func (mr *MockAdapterMockRecorder) WebsocketHandler(req interface{}) *gomock.Call {
+// RemoveFriend indicates an expected call of RemoveFriend.
+func (mr *MockAdapterMockRecorder) RemoveFriend(data interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WebsocketHandler", reflect.TypeOf((*MockAdapter)(nil).WebsocketHandler), req)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveFriend", reflect.TypeOf((*MockAdapter)(nil).RemoveFriend), data)
+}
+
+// SearchUser mocks base method.
+func (m *MockAdapter) SearchUser(data SearchUserReq) SearchUserResp {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SearchUser", data)
+	ret0, _ := ret[0].(SearchUserResp)
+	return ret0
+}
+
+// SearchUser indicates an expected call of SearchUser.
+func (mr *MockAdapterMockRecorder) SearchUser(data interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchUser", reflect.TypeOf((*MockAdapter)(nil).SearchUser), data)
+}
+
+// SendMessage mocks base method.
+func (m *MockAdapter) SendMessage(data SendMessageReq) SendMessageResp {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SendMessage", data)
+	ret0, _ := ret[0].(SendMessageResp)
+	return ret0
+}
+
+// SendMessage indicates an expected call of SendMessage.
+func (mr *MockAdapterMockRecorder) SendMessage(data interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendMessage", reflect.TypeOf((*MockAdapter)(nil).SendMessage), data)
+}
+
+// SendMessageTransactionFuncFactory mocks base method.
+func (m *MockAdapter) SendMessageTransactionFuncFactory(publishMessageReq SendMessageReq) func(*gorm.DB) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SendMessageTransactionFuncFactory", publishMessageReq)
+	ret0, _ := ret[0].(func(*gorm.DB) error)
+	return ret0
+}
+
+// SendMessageTransactionFuncFactory indicates an expected call of SendMessageTransactionFuncFactory.
+func (mr *MockAdapterMockRecorder) SendMessageTransactionFuncFactory(publishMessageReq interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendMessageTransactionFuncFactory", reflect.TypeOf((*MockAdapter)(nil).SendMessageTransactionFuncFactory), publishMessageReq)
 }

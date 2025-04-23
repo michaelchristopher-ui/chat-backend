@@ -5,12 +5,14 @@ import (
 	"websocket_client/internal/pkg/core/adapter/accountadapter"
 	"websocket_client/internal/pkg/core/adapter/databaseadapter"
 	"websocket_client/internal/pkg/core/adapter/loggeradapter"
+	"websocket_client/internal/pkg/core/adapter/passwordgeneratoradapter"
 )
 
 // AccountService is a service that handles all account-related functionalities
 type AccountService struct {
-	db     databaseadapter.RepoAdapter
-	logger loggeradapter.Adapter
+	db                databaseadapter.RepoAdapter
+	logger            loggeradapter.Adapter
+	passwordGenerator passwordgeneratoradapter.Adapter
 }
 
 // NewAccountService is a constructor function for AccountService, which conforms to accountadapter.Adapter
@@ -20,13 +22,15 @@ func NewAccountService(req NewAccountServiceReq) accountadapter.Adapter {
 	}
 
 	return AccountService{
-		db:     req.DB,
-		logger: req.Logger,
+		db:                req.DB,
+		logger:            req.Logger,
+		passwordGenerator: req.PasswordGenerator,
 	}
 }
 
 // NewAccountServiceReq is a parameter struct for the NewAccountService function
 type NewAccountServiceReq struct {
-	DB     databaseadapter.RepoAdapter
-	Logger loggeradapter.Adapter
+	DB                databaseadapter.RepoAdapter
+	Logger            loggeradapter.Adapter
+	PasswordGenerator passwordgeneratoradapter.Adapter
 }

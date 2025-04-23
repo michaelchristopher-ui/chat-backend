@@ -1,28 +1,21 @@
 package chatservice
 
-import (
-	"websocket_client/internal/pkg/core/adapter/chatadapter"
-)
-
 /*
-ReceiveMessage attempts to send the message to the user through websocket if they are connected to this server.
-An error is returned when the user is online and the message fails to be sent through the websocket connection.
-If the user is not online the server does not return an error, but isOnline will return false
-*/
-func (c ChatService) ReceiveMessage(req chatadapter.ReceiveMessageReq) (isOnline bool, err error) {
-	conn, ok := c.UserConnections[req.ToUserID]
-	if !ok {
-		return false, nil
-	}
-	err = conn.WriteJSON(
-		MessagePayload{
-			FromUserID: req.FromUserID,
-			Type:       req.Type,
-			Message:    req.Message,
-			Timestamp:  req.Timestamp,
-			ToUserID:   req.ToUserID,
-		},
-	)
+ReceiveMessage is a function that:
 
-	return true, err
+1. TODO: Lock the user connection if it is still used?
+
+2. Attempts to send a message to the user's websocket if the connection is available
+
+3. Keep retrying when it fails to send the message as long as the user is connected
+*/
+
+func (c ChatService) ReceiveMessage(userID string, data interface{}) (isOnline bool, err error) {
+	conn := c.WsStore.GetConn(userID)
+	if conn != nil {
+		defer c.WsStore.Release(userID)
+		err = conn.WriteJSON(data)
+		return true, err
+	}
+	return false, nil
 }

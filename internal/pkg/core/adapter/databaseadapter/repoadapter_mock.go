@@ -122,6 +122,35 @@ func (mr *MockRepoAdapterMockRecorder) RemoveFriend(req interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RemoveFriend", reflect.TypeOf((*MockRepoAdapter)(nil).RemoveFriend), req)
 }
 
+// SaveChatHistoryWithTx mocks base method.
+func (m *MockRepoAdapter) SaveChatHistoryWithTx(tx *gorm.DB, req SaveChatHistoryWithTxReq) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SaveChatHistoryWithTx", tx, req)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SaveChatHistoryWithTx indicates an expected call of SaveChatHistoryWithTx.
+func (mr *MockRepoAdapterMockRecorder) SaveChatHistoryWithTx(tx, req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveChatHistoryWithTx", reflect.TypeOf((*MockRepoAdapter)(nil).SaveChatHistoryWithTx), tx, req)
+}
+
+// SearchUser mocks base method.
+func (m *MockRepoAdapter) SearchUser(req SearchUserRequest) ([]models.Account, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SearchUser", req)
+	ret0, _ := ret[0].([]models.Account)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SearchUser indicates an expected call of SearchUser.
+func (mr *MockRepoAdapterMockRecorder) SearchUser(req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SearchUser", reflect.TypeOf((*MockRepoAdapter)(nil).SearchUser), req)
+}
+
 // SetAccount mocks base method.
 func (m *MockRepoAdapter) SetAccount(req SetAccountReq) error {
 	m.ctrl.T.Helper()

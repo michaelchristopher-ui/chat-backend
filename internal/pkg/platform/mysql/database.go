@@ -55,7 +55,7 @@ func (d Database) GetUserFriends(req databaseadapter.GetUserFriendsReq) (userFri
 SearchUser searches a user, using the UserID in the search as a substring
 TODO: Move this to elasticsearch if we require a faster search
 */
-func (d Database) SearchFriend(req databaseadapter.SearchFriendRequest) (users []models.Account, err error) {
+func (d Database) SearchUser(req databaseadapter.SearchUserRequest) (users []models.Account, err error) {
 	/*
 		We add a percent sign as a prefix and suffix of the UserID for a substring search.
 		Double percent sign escapes the percent sign in the string format

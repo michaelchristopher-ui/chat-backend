@@ -12,7 +12,7 @@ import (
 	"websocket_client/internal/pkg/core/adapter/loggeradapter"
 
 	"github.com/golang/mock/gomock"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -43,10 +43,9 @@ func TestReceiveMessage(t *testing.T) {
 				Timestamp:  "2025-04-02T06:53:00Z",
 			},
 			mock: func() {
-				mockChatService.EXPECT().ReceiveMessage(chatadapter.ReceiveMessageReq{
+				mockChatService.EXPECT().ReceiveMessage("user2", chatadapter.Message{
 					Message:    "Hello",
 					FromUserID: "user1",
-					Type:       1,
 					ToUserID:   "user2",
 					Timestamp:  "2025-04-02T06:53:00Z",
 				}).Return(true, nil).Times(1)
@@ -72,10 +71,9 @@ func TestReceiveMessage(t *testing.T) {
 				Timestamp:  "2025-04-02T06:53:00Z",
 			},
 			mock: func() {
-				mockChatService.EXPECT().ReceiveMessage(chatadapter.ReceiveMessageReq{
+				mockChatService.EXPECT().ReceiveMessage("user2", chatadapter.Message{
 					Message:    "Hello",
 					FromUserID: "user1",
-					Type:       1,
 					ToUserID:   "user2",
 					Timestamp:  "2025-04-02T06:53:00Z",
 				}).Return(false, nil).Times(1)
@@ -101,10 +99,9 @@ func TestReceiveMessage(t *testing.T) {
 				Timestamp:  "2025-04-02T06:53:00Z",
 			},
 			mock: func() {
-				mockChatService.EXPECT().ReceiveMessage(chatadapter.ReceiveMessageReq{
+				mockChatService.EXPECT().ReceiveMessage("user2", chatadapter.Message{
 					Message:    "Hello",
 					FromUserID: "user1",
-					Type:       1,
 					ToUserID:   "user2",
 					Timestamp:  "2025-04-02T06:53:00Z",
 				}).Return(false, errors.New("foo")).Times(1)
@@ -139,7 +136,7 @@ func TestReceiveMessage(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			// Set up the body. Below, we handle one unique case first which is the invalid json before going to different requests controlled by the wrongBody boolean.
-			var req *http.Request = httptest.NewRequest(http.MethodPost, "/receive_message", bytes.NewReader([]byte("{invalid_json}")))
+			req := httptest.NewRequest(http.MethodPost, "/receive_message", bytes.NewReader([]byte("{invalid_json}")))
 			if !test.wrongBody {
 				jsonData, err := json.Marshal(test.reqBody)
 				assert.NoError(t, err)

@@ -4,8 +4,10 @@ go 1.23.0
 
 require (
 	github.com/golang/mock v1.6.0
-	github.com/labstack/echo v3.3.10+incompatible
+	github.com/labstack/echo/v4 v4.13.3
+	golang.org/x/time v0.11.0
 	gorm.io/gorm v1.25.11
+
 )
 
 require (
@@ -35,7 +37,7 @@ require (
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.36.0
-	golang.org/x/net v0.25.0 // indirect
+	golang.org/x/net v0.33.0 // indirect
 	golang.org/x/sys v0.31.0 // indirect
 	golang.org/x/text v0.23.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0
