@@ -76,9 +76,9 @@ func startServer() {
 		Redis:  rds,
 		Logger: lgr,
 		Sender: senderService,
-		WsStore: wsstoreservice.NewChatBackendService(wsstoreservice.NewWsStoreServiceReq{
+		WsStore: wsstoreservice.NewWSStoreService(wsstoreservice.NewWsStoreServiceReq{
 			UserConnections: map[string]wsconnadapter.Adapter{},
-			Lock:            map[string]*sync.Mutex{},
+			ConnLock:        map[string]sync.Locker{},
 		}),
 	})
 
@@ -87,9 +87,9 @@ func startServer() {
 		Logger: lgr,
 	})
 
-	wsstoreService := wsstoreservice.NewChatBackendService(wsstoreservice.NewWsStoreServiceReq{
+	wsstoreService := wsstoreservice.NewWSStoreService(wsstoreservice.NewWsStoreServiceReq{
 		UserConnections: make(map[string]wsconnadapter.Adapter),
-		Lock:            make(map[string]*sync.Mutex),
+		ConnLock:        make(map[string]sync.Locker),
 	})
 
 	upgraderService := wsupgrader.NewWsUpgraderService(wsupgrader.NewWsUpgraderServiceReq{
